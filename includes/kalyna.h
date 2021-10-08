@@ -6,7 +6,7 @@
 /*   By: yhetman <yhetman@student.unit.ua>                                    */
 /*                                                                            */
 /*   Created: 2021/10/03 12:13:13 by yhetman                                  */
-/*   Updated: 2021/10/05 12:13:15 by yhetman                                  */
+/*   Updated: 2021/10/05 08:48:15 by yhetman                                  */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,22 @@
 # include <stdlib.h>
 # include <stdio.h>
 
+#define BUFFER_SIZE = 64 * 1024;
+
+typedef void 		(*function)(uint64_t *, uint64_t *, uint64_t *);
+	
 typedef struct 		s_kalyna
 {
 	size_t	state;
-	size_t	rows;
-	size_t	doublesize_block;
-	size_t	doublesize_key;
+	size_t	rounds;
+	size_t	double_block;
+	size_t	double_key;
 }					t_kalyna;
 
 
 
 int				cipher(uint64_t *input, uint64_t *w, uint64_t *output);
+void 			key_scheduler(uint64_t * key, uint64_t * w);
 
 
 #endif
