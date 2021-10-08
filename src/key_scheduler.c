@@ -14,7 +14,7 @@
 #include "kalyna.h"
 
 
-
+extern t_kalyna *kalyna;
 extern const size_t rows_count;
 
 
@@ -22,7 +22,8 @@ extern const size_t rows_count;
 static void
 key_expand(uint64_t * key, uint64_t * w, uint64_t * key_row, uint64_t * state)
 {
-	return ;
+    if (!key || !w || !key_row || !state)
+	   return ;
 }
 
 

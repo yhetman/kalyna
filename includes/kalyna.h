@@ -17,10 +17,15 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include <stdbool.h>
+# include <string.h>
+# include <unistd.h>
 
-#define BUFFER_SIZE 64 * 1024;
 
-typedef void 		(*function)(uint64_t *, uint64_t *, uint64_t *);
+# define S_BOX_DIMENSION 4
+# define BUFFER_SIZE  (64 * 1024)
+
+typedef int 		(*function)(uint64_t *, uint64_t *, uint64_t *);
 	
 typedef struct 		s_kalyna
 {
@@ -36,5 +41,5 @@ int				cipher(uint64_t *input, uint64_t *w, uint64_t *output);
 void 			key_scheduler(uint64_t * key, uint64_t * w);
 
 int 			get_options(int argc, char ** argv, FILE ** input, FILE ** output,
-					uint64_t * key, bool * op, t_kalyna ** kalyna, bool *padding)
+					uint64_t * key, bool * op, t_kalyna ** kalyna, bool *padding);
 #endif

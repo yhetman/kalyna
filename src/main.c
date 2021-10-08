@@ -12,16 +12,15 @@
 
 #include "kalyna.h"
 
-
-// extern t_kalyna     kalyna_128x128;
-// extern t_kalyna     kalyna_128x256;
-// extern t_kalyna     kalyna_256x256;
-// extern t_kalyna     kalyna_256x512;
+extern t_kalyna     *kalyna;
+extern t_kalyna     kalyna_128x128;
+extern t_kalyna     kalyna_128x256;
+extern t_kalyna     kalyna_256x256;
+extern t_kalyna     kalyna_256x512;
 extern t_kalyna     kalyna_512x512;
 extern const size_t rows_count;
 
-static size_t
-remove_paddings(uint64_t * block, size_t double_block)
+static size_t   remove_paddings(uint64_t * block, size_t double_block)
 {
     uint64_t    pad_size;
     size_t      i;
@@ -30,8 +29,10 @@ remove_paddings(uint64_t * block, size_t double_block)
     if (pad_size >= double_block)
         return 0;
     for (i = double_block - 2; i >= double_block - pad_size; i--)
+    {
         if (block[i] != pad_size)
             return 0;
+    }
     return pad_size;
 }
 
@@ -64,24 +65,25 @@ main(int argc, char ** argv)
                 before_read,
                 read_chunks,
                 i;
-    long        long;
+    long        longs;
     bool        mode_ = true;
     bool        pads = false;
     function    mode;
-    t_kalyna    *kalyna = &kalyna_512x512;
+    t_kalyna    *stdkalyna = &kalyna_512x512;
     
     if (get_options(argc, argv, &input, &output, key, &mode_, &kalyna, &pads) != 0)
        return 1;
 
-    mode = (mode_ == true) ? &cipher : &decipher;   
-    setup(kalyna);
-    w = malloc(sizeof(uint64_t) * kalyna->state_rows * (kalyna->rounds + 1));
+    mode = &cipher;
+    // mode = (mode_ == true) ? &cipher : &decipher;   
+    kalyna = stdkalyna;
+    w = malloc(sizeof(uint64_t) * kalyna->state * (kalyna->rounds + 1));
     key_scheduler(key, w);
     reader = malloc(BUFFER_SIZE);
     writer = malloc(BUFFER_SIZE);
     kalyna_chunk_size = sizeof(uint64_t) * kalyna->double_block;
     before_read = 0;
-    while ((reads = fread(reader, sizeof(byte), BUFFER_SIZE, input)) != 0)
+    while ((reads = fread(reader, sizeof(uint8_t), BUFFER_SIZE, input)) != 0)
     {
         read_chunks = reads / kalyna_chunk_size;
         for (i = 0; i < read_chunks; i++)
@@ -95,7 +97,7 @@ main(int argc, char ** argv)
             }
             if (pads)
                 add_paddings(reader + kalyna->double_block * read_chunks,
-                          (size_t)((double)(reads % kalyna_chunk_size) / sizeof(dw) + 1),
+                          (size_t)((double)(reads % kalyna_chunk_size) / sizeof(uint64_t) + 1),
                           kalyna->double_block);
                 //reads = (read_chunks + 1) * kalyna_chunk_size;
             else
@@ -107,7 +109,7 @@ main(int argc, char ** argv)
         if (reads < BUFFER_SIZE && !mode_ && pads)
             reads -= remove_paddings(writer + read_chunks - kalyna->double_block,
                                      kalyna->double_block);
-        if (fwrite(writer, sizeof(byte), reads, output) == 0)
+        if (fwrite(writer, sizeof(uint8_t), reads, output) == 0)
         {
             fprintf(stderr, "Error occured while writting to the output file.");
             return -1;
@@ -117,9 +119,9 @@ main(int argc, char ** argv)
     if (!mode_ && before_read == BUFFER_SIZE && reads == 0 && pads)
     {
         fseek(output, 0L, SEEK_END);
-        sz = ftell(output);
-        sz -= remove_paddings(writer + before_read / kalyna_chunk_size - kalyna->double_block, kalyna->double_block);
-        if (ftruncate(fileno(output), sz) != 0)
+        longs = ftell(output);
+        longs -= remove_paddings(writer + before_read / kalyna_chunk_size - kalyna->double_block, kalyna->double_block);
+        if (ftruncate(fileno(output), longs) != 0)
         {
             fprintf(stderr, "File truncate error.");
             return -3;
@@ -134,5 +136,3 @@ main(int argc, char ** argv)
 
     return 0;
 }
-
-
