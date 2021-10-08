@@ -15,10 +15,7 @@
 extern t_kalyna	*kalyna;
 extern const size_t rows_count;
 extern const uint8_t s_box[4][16][16];
-// extern uint8_t s_box[4][16][16];
 extern uint8_t mix_columns_matrix[8][8];
-extern uint8_t inverse_mix_columns_matrix[8][8];
-
 
 static void
 xor_key(uint64_t * state, uint64_t *w)
@@ -40,15 +37,6 @@ add_key(uint64_t *state, uint64_t *w)
 }
 
 
-static uint64_t*
-init_state(uint64_t *input, size_t n)
-{
-	uint64_t	*state;
-
-	state = (uint64_t *) malloc(n * kalyna->state);
-    memcpy(state, input, n * kalyna->state);
-    return state;
-}
 
 static void
 sub_bytes(uint64_t * state)
@@ -67,6 +55,66 @@ sub_bytes(uint64_t * state)
 }
 
 
+static uint8_t
+multiply_galois_fields(uint8_t a, uint8_t b)
+{
+    uint8_t result,
+            hbit;
+    size_t  i;
+
+    result = 0;
+    hbit = 0;
+    for (i = 0; i < 8; i++)
+    {
+        if ((b & 0x1) == 1)
+            result ^= a;
+        hbit = a & 0x80;
+        a <<= 1;
+        if (hbit == 0x80)
+            a ^= 0x011d;
+        b >>= 1;
+    }
+    return result;
+}
+
+
+static void
+mix_columns(uint64_t *state, uint8_t matrix[8][8])
+{   uint8_t     product;
+    uint64_t    result;
+    size_t      columns;
+    int         rows,
+                i;
+
+    for (columns = 0; columns < kalyna->state; columns++)
+    {
+        result = 0;
+
+        for (rows = rows_count - 1; rows >= 0; rows--)
+        {
+            product = 0;
+            for (i = rows_count - 1; i >= 0; i--)
+                product ^= multiply_galois_fields(((uint8_t *) &state[columns])[i], matrix[rows][i]);
+            result |= (uint64_t) product << (rows * rows_count);
+        }
+        state[columns] = result;
+    }
+
+}
+
+
+static uint64_t*
+init_state(uint64_t *input, size_t n)
+{
+    uint64_t    *state;
+
+    state = (uint64_t *) malloc(n * kalyna->state);
+    memcpy(state, input, n * kalyna->state);
+    return state;
+}
+
+
+
 int
 cipher(uint64_t *input, uint64_t *w, uint64_t *output)
 {
@@ -83,12 +131,13 @@ cipher(uint64_t *input, uint64_t *w, uint64_t *output)
     {
         sub_bytes(state);
         //shift_rows(state);
-        //mix_columns(state, );
+        mix_columns(state, mix_columns_matrix);
         xor_key(state, w + round * kalyna->state);
     }
     sub_bytes(state);
     //shift_rows(state);
-    //mix_columns(state);
+    // f(state);
+    mix_columns(state, mix_columns_matrix);
     
     add_key(state, w + kalyna->rounds * kalyna->state);
     

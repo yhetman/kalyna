@@ -12,7 +12,9 @@
 
 #include "kalyna.h"
 
-extern t_kalyna	*kalyna;
+extern t_kalyna	        *kalyna;
+extern uint8_t          inverse_mix_columns_matrix[8][8];
+extern const uint8_t    inverse_s_box[4][16][16];
 
 static void
 minus_key(uint64_t *state, uint64_t *w)	// INVERSE VERSION OF ADD KEY()
