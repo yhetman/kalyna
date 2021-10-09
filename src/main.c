@@ -75,9 +75,11 @@ main(int argc, char ** argv)
        return 1;
 
     mode = &cipher;
+    
     // mode = (mode_ == true) ? &cipher : &decipher;   
     kalyna = stdkalyna;
     w = malloc(sizeof(uint64_t) * kalyna->state * (kalyna->rounds + 1));
+
     key_scheduler(key, w);
     reader = malloc(BUFFER_SIZE);
     writer = malloc(BUFFER_SIZE);
@@ -96,14 +98,19 @@ main(int argc, char ** argv)
                 return -1;
             }
             if (pads)
-                add_paddings(reader + kalyna->double_block * read_chunks,
+            {
+                    add_paddings(reader + kalyna->double_block * read_chunks,
                           (size_t)((double)(reads % kalyna_chunk_size) / sizeof(uint64_t) + 1),
                           kalyna->double_block);
-                //reads = (read_chunks + 1) * kalyna_chunk_size;
+                    reads = (read_chunks + 1) * kalyna_chunk_size;
+            }
             else
+            {
                 memset(reader + kalyna->double_block * read_chunks + reads % kalyna_chunk_size,
                         0x0, kalyna_chunk_size - reads % kalyna_chunk_size);
-            reads = (read_chunks + 1) * kalyna_chunk_size;
+                reads = (read_chunks + 1) * kalyna_chunk_size;
+            
+            }
             mode(reader + read_chunks * kalyna->double_block, writer + read_chunks * kalyna->double_block, w);
         }
         if (reads < BUFFER_SIZE && !mode_ && pads)

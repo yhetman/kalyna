@@ -19,20 +19,18 @@ extern t_kalyna     kalyna_256x512;
 extern t_kalyna     kalyna_512x512;
 
 static int
-ft_hex2dec(char hexademical, char *decimal) {
+ft_hex2dec(char hexademical, char *decimal)
+{
     if (decimal == NULL)
         return 0;
-
-    if (hexademical >= '0' && hexademical <= '9') {
+    if (hexademical >= '0' && hexademical <= '9')
         *decimal = hexademical - '0';
-    } else if (hexademical >= 'A' && hexademical <= 'F') {
+    else if (hexademical >= 'A' && hexademical <= 'F')
         *decimal = hexademical - 'A' + 10;
-    } else if (hexademical >= 'a' && hexademical <= 'f') {
+    else if (hexademical >= 'a' && hexademical <= 'f')
         *decimal = hexademical - 'a' + 10;
-    } else {
+    else
         return 0;
-    }
-
     return 1;
 }
 
@@ -72,20 +70,20 @@ get_options(int argc, char ** argv, FILE ** input, FILE ** output,
     size_t 	key_length;
     
     is_all = 0;
-    while ((options = getopt(argc, argv, "k:i:o:des:ph")) != -1)
+    while ((options = getopt(argc, argv, "i:o:k:des:ph")) != -1)
     {
         switch (options)
         {
-        	case 'k':
-                key_length = ft_hexbin(optarg, (uint8_t **)&key);
-                is_all++;
-                break;
             case 'i':
                 *input = fopen(optarg, "r");
                 is_all++;
                 break;
             case 'o':
                 *output = fopen(optarg, "w+");
+                is_all++;
+                break;
+            case 'k':
+                key_length = ft_hexbin(optarg, (uint8_t **)&key);
                 is_all++;
                 break;
             case 'd':

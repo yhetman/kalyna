@@ -6,7 +6,7 @@
 #*   By: yhetman <yhetman@student.unit.ua>                                    *#
 #*                                                                            *#
 #*   Created: 2021/10/05 12:45:04 by yhetman                                  *#
-#*   Updated: 2021/10/05 12:45:13 by yhetman                                  *#
+#*   Updated: 2021/10/09 03:40:14 by yhetman                                  *#
 #*                                                                            *#
 #* ************************************************************************** *#
 
@@ -41,7 +41,7 @@ $(LIB_NAME): $(OBJ)
 	ranlib $(LIB_NAME)
 
 $(KALYNA): $(LIB_NAME) $(KALYNA_MAIN)
-	gcc $(FLAGS) $(KALYNA_MAIN) $(LIB_NAME) -o $(KALYNA)
+	gcc $(FLAGS) $(DEBUG_FLAGS) $(KALYNA_MAIN) $(LIB_NAME) -o $(KALYNA)
 
 make_obj_dir:
 	mkdir -p $(OBJ_DIR)

@@ -17,7 +17,7 @@ extern const size_t rows_count;
 extern const uint8_t s_box[4][16][16];
 extern uint8_t mix_columns_matrix[8][8];
 
-static void
+void
 xor_key(uint64_t * state, uint64_t *w)
 {
 	size_t		i;
@@ -27,7 +27,7 @@ xor_key(uint64_t * state, uint64_t *w)
 }
 
 
-static void
+void
 add_key(uint64_t *state, uint64_t *w)
 {
 	size_t		i;
@@ -38,7 +38,7 @@ add_key(uint64_t *state, uint64_t *w)
 
 
 
-static void
+void
 sub_bytes(uint64_t * state)
 {
     size_t  column_num,
@@ -78,7 +78,31 @@ multiply_galois_fields(uint8_t a, uint8_t b)
 }
 
 
-static void
+
+void
+shift_rows(uint64_t *state)
+{
+    size_t  i,
+            j,
+            k,
+            shifts;
+    uint8_t swap;
+
+    for (i = 0; i < rows_count; i++)
+    {
+        shifts = (i * kalyna->double_block) / 8; 
+        for (j = 0; j < shifts; j++)
+        {
+            swap = ((uint8_t *)&state[kalyna->state - 1])[i];
+            for (k = kalyna->state - 1; k > 0; k--)
+                ((uint8_t *)&state[k])[i] = ((uint8_t *)&state[k - 1])[i];
+            ((uint8_t *)&state[0])[i] = swap;
+        }
+    }
+}
+
+
+void
 mix_columns(uint64_t *state, uint8_t matrix[8][8])
 {   uint8_t     product;
     uint64_t    result;
@@ -119,7 +143,6 @@ int
 cipher(uint64_t *input, uint64_t *w, uint64_t *output)
 {
 	size_t 		round;
-	// size_t 		rows_count;
     uint64_t 	*state;
 
 
@@ -130,15 +153,13 @@ cipher(uint64_t *input, uint64_t *w, uint64_t *output)
     for (round = 1; round < kalyna->rounds; round++)
     {
         sub_bytes(state);
-        //shift_rows(state);
+        shift_rows(state);
         mix_columns(state, mix_columns_matrix);
         xor_key(state, w + round * kalyna->state);
     }
     sub_bytes(state);
-    //shift_rows(state);
-    // f(state);
-    mix_columns(state, mix_columns_matrix);
-    
+    shift_rows(state);
+    mix_columns(state, mix_columns_matrix);   
     add_key(state, w + kalyna->rounds * kalyna->state);
     
     memcpy(output, state, rows_count * kalyna->state);
