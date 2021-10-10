@@ -12,7 +12,7 @@
 
 #include "kalyna.h"
 
-extern t_kalyna     *kalyna;
+// extern t_kalyna     *kalyna;
 extern t_kalyna     kalyna_128x128;
 extern t_kalyna     kalyna_128x256;
 extern t_kalyna     kalyna_256x256;
@@ -69,18 +69,21 @@ main(int argc, char ** argv)
     bool        mode_ = true;
     bool        pads = false;
     function    mode;
-    t_kalyna    *stdkalyna = &kalyna_512x512;
+    t_kalyna    *kalyna = &kalyna_512x512;
     
     if (get_options(argc, argv, &input, &output, key, &mode_, &kalyna, &pads) != 0)
        return 1;
 
     mode = &cipher;
+
+    init(kalyna);
     
     // mode = (mode_ == true) ? &cipher : &decipher;   
-    kalyna = stdkalyna;
+    // kalyna = stdkalyna;
     w = malloc(sizeof(uint64_t) * kalyna->state * (kalyna->rounds + 1));
 
     key_scheduler(key, w);
+
     reader = malloc(BUFFER_SIZE);
     writer = malloc(BUFFER_SIZE);
     kalyna_chunk_size = sizeof(uint64_t) * kalyna->double_block;
@@ -89,7 +92,7 @@ main(int argc, char ** argv)
     {
         read_chunks = reads / kalyna_chunk_size;
         for (i = 0; i < read_chunks; i++)
-            mode(reader + kalyna->double_block * i, writer + kalyna->double_block * i, w);
+            mode(reader + kalyna->double_block * i, w, writer + kalyna->double_block * i);
         if (reads % kalyna_chunk_size != 0)
         {
             if (!mode_)
@@ -111,7 +114,7 @@ main(int argc, char ** argv)
                 reads = (read_chunks + 1) * kalyna_chunk_size;
             
             }
-            mode(reader + read_chunks * kalyna->double_block, writer + read_chunks * kalyna->double_block, w);
+            mode(reader + read_chunks * kalyna->double_block, w, writer + read_chunks * kalyna->double_block);
         }
         if (reads < BUFFER_SIZE && !mode_ && pads)
             reads -= remove_paddings(writer + read_chunks - kalyna->double_block,

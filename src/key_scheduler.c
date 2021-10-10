@@ -37,6 +37,8 @@ cipher_round_with_xor_key(uint64_t *state, uint64_t *key)
 }
 
 
+
+
 static void
 rotation(uint64_t *values, size_t size)
 {

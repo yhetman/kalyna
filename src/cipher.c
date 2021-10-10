@@ -128,13 +128,19 @@ mix_columns(uint64_t *state, uint8_t matrix[8][8])
 
 
 static uint64_t*
-init_state(uint64_t *input, size_t n)
+init_state(uint64_t *input)
 {
     uint64_t    *state;
 
-    state = (uint64_t *) malloc(n * kalyna->state);
-    memcpy(state, input, n * kalyna->state);
+    state = (uint64_t *) malloc(rows_count * kalyna->state);
+    memcpy(state, input, rows_count * kalyna->state);
     return state;
+}
+
+
+void init(t_kalyna *k)
+{
+    kalyna = k;
 }
 
 
@@ -145,11 +151,10 @@ cipher(uint64_t *input, uint64_t *w, uint64_t *output)
 	size_t 		round;
     uint64_t 	*state;
 
+    if (!(state = init_state(input)))
+        return 1;
 
-    if (!(state = init_state(input, rows_count)))
-    	return 1;
     add_key(state, w);
-  
     for (round = 1; round < kalyna->rounds; round++)
     {
         sub_bytes(state);
@@ -163,5 +168,7 @@ cipher(uint64_t *input, uint64_t *w, uint64_t *output)
     add_key(state, w + kalyna->rounds * kalyna->state);
     
     memcpy(output, state, rows_count * kalyna->state);
+    
+    free(state);
     return 0;
 }
