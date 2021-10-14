@@ -36,7 +36,8 @@ ft_hex2dec(char hexademical, char *decimal)
 
 
 static size_t
-ft_hexbin(char *hexstr, unsigned char **binary) {
+ft_hexbin(char *hexstr, unsigned char **binary)
+{
     size_t	len,
     		i;
     char 	b1,

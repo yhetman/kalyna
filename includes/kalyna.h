@@ -36,14 +36,17 @@ typedef struct 		s_kalyna
 }					t_kalyna;
 
 
+
+uint64_t*			init_state(uint64_t *input);
+void 				init(t_kalyna * stdkalyna);
 void				xor_key(uint64_t * state, uint64_t *w);
 void				add_key(uint64_t *state, uint64_t *w);
 void				sub_bytes(uint64_t * state);
 void				shift_rows(uint64_t *state);
 void				mix_columns(uint64_t *state, uint8_t matrix[8][8]);
 void 				key_scheduler(uint64_t * key, uint64_t * w);
-void init(t_kalyna * stdkalyna);
 int					cipher(uint64_t *input, uint64_t *w, uint64_t *output);
+int 				decipher(uint64_t *input, uint64_t *w, uint64_t *output);
 int 				get_options(int argc, char ** argv, FILE ** input, FILE ** output,
 					uint64_t * key, bool * op, t_kalyna ** kalyna, bool *padding);
 #endif

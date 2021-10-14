@@ -11,8 +11,9 @@
 #* ************************************************************************** *#
 
 SRCS =  main.c  cipher.c get_options.c \
-		key_scheduler.c tables.c
-#decipher.c  bitwise_operations.c
+		key_scheduler.c tables.c decipher.c
+
+		 
 SRCS_DIR = src/
 
 OBJ_DIR = obj/

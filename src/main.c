@@ -74,12 +74,12 @@ main(int argc, char ** argv)
     if (get_options(argc, argv, &input, &output, key, &mode_, &kalyna, &pads) != 0)
        return 1;
 
-    mode = &cipher;
+    // mode = &cipher;
+
+    mode = (mode_ == true) ? &cipher : &decipher;   
 
     init(kalyna);
-    
-    // mode = (mode_ == true) ? &cipher : &decipher;   
-    // kalyna = stdkalyna;
+        // kalyna = stdkalyna;
     w = malloc(sizeof(uint64_t) * kalyna->state * (kalyna->rounds + 1));
 
     key_scheduler(key, w);

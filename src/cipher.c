@@ -127,7 +127,7 @@ mix_columns(uint64_t *state, uint8_t matrix[8][8])
 }
 
 
-static uint64_t*
+uint64_t*
 init_state(uint64_t *input)
 {
     uint64_t    *state;
